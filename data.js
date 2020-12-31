@@ -74,37 +74,4 @@ fetch (proxy + target)
 
 
 
-// avaccine = result.avaccine.map(item => {let d = item.date_vaccine_administered;
-//                                         item.date_vaccine_administered = `${d.slice(6)}-${d.slice(3,5)}-${d.slice(0,2)}`;
-//                                         return item})
-// MG.data_graphic({
-//   title: "Vaccines in Ontario",
-//   description: "This graphic shows a time-series of downloads.",
-//   data: avaccine,
-//   width: 1200,
-//   height: 500,
-//   target: 'div#onvac',
-//   x_accessor: 'date_vaccine_administered',
-//   y_accessor: 'avaccine',
-//   chart_type: 'bar'
-// })
-
-
-// let chartistSeriesData = avaccine.map(item => {item.y=item.avaccine;
-//                                          item.x = item.date_vaccine_administered;
-//                                                return item})
-// console.log(chartistSeriesData);
-// let chartist = new Chartist.Bar('.ct-chart', {
-//   name: 'vaccines administered',
-//   data: chartistSeriesData
-// }//, {
-// //   axisX: {
-// //     //type: Chartist.FixedScaleAxis,
-// //     labelInterpolationFnc: function(value) {
-// //       console.log(value);
-// //       return value;
-// //     }
-// //   }
-// // }
-//                                )
 
