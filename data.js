@@ -13,10 +13,16 @@ fetch (proxy + target)
       return item})
     let cjsData = avaccine.map(item => { return {t: item.date_vaccine_administered, y: item.avaccine, total: item.cumulative_avaccine}})
     let cjsData2 = avaccine.map(item => { return {t: item.date_vaccine_administered, y: item.cumulative_avaccine}})
-    console.log(cjsData);
+    // console.log(cjsData);
     const ctx = document.getElementById('chartJS').getContext('2d');
-    const per100K = Math.round ((avaccine.slice(-1)[0].cumulative_avaccine / onPop) * 100000)
+    const latestTotal = avaccine.slice(-1)[0].cumulative_avaccine
+    const latestDaily = avaccine.slice(-1)[0].avaccine
+    const per100K = Math.round ((latestTotal / onPop) * 100000)
     console.log(per100K);
+    let daysToGo = Math.round((onPop - latestTotal )/latestDaily),
+        endDate = moment().add(daysToGo, "days").format("MMM DD, YYYY");
+    document.querySelector("#endDate").textContent = endDate
+    
     myBarChart = new Chart(ctx, {
       type: 'bar',
       data: cjsData,
