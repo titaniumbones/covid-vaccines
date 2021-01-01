@@ -38,8 +38,11 @@ fetch (proxy + target)
     //const latestDay = avaccine.slice(-1)[0].date_vaccine_administered
     console.log(per100K);
     let daysToGo = Math.round((onPop - latestTotal )/latestDaily),
-        endDate = moment().add(daysToGo, "days").format("MMM DD, YYYY");
-    document.querySelector("#endDate").textContent = endDate
+        endMom = moment().add(daysToGo, "days"),
+        endDate = endMom.format("MMM DD, YYYY"),
+        span = document.querySelector("#endDate") 
+    span.textContent = endDate
+    endMom < moment('2020-09-01') ? span.className = "good" : span.className = "bad"
     
     myBarChart = new Chart(ctx, {
       type: 'bar',
@@ -101,20 +104,20 @@ fetch (proxy + target)
             barLabels = [],
             agregatePop=popFigures.Canada,
             agregateVaccine = 0
-            
+        
         json.avaccine
           .sort((a,b) =>  getProportion(a) > getProportion(b) ? -1 : 1)
           .forEach(province => {
-              console.log(province);
-              let totPop = popFigures[province.province]
-              console.log(totPop)
-              agregateVaccine += province.cumulative_avaccine
-              let proportional = Math.round((province.cumulative_avaccine / totPop) * 100000)
-              console.log(proportional);
-              barDataseries.push(proportional);
-              barLabels.push(province.province)
-              //return ({y: province.province, x:proportional })
-            })
+            console.log(province);
+            let totPop = popFigures[province.province]
+            console.log(totPop)
+            agregateVaccine += province.cumulative_avaccine
+            let proportional = Math.round((province.cumulative_avaccine / totPop) * 100000)
+            console.log(proportional);
+            barDataseries.push(proportional);
+            barLabels.push(province.province)
+            //return ({y: province.province, x:proportional })
+          })
         console.log(agregateVaccine, agregatePop);
         const goodColor = 'rgba(40,200,40, 0.2)',
               badColor = 'rgba(200,40,40,0.2)'
@@ -140,7 +143,7 @@ fetch (proxy + target)
           options:{
             title: {
               display: true,
-              text: `Comparative vacicnation/100K in Canada`,
+              text: `Comparative vaccination/100K in Canada`,
               fontSize: 16
             },
             legend: {
