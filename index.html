@@ -2,8 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8"/>
-        <title>Document</title>
-
+        <title>Ontario COVID Vaccinations</title>
+        
         <!-- time parser -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous"></script>
         <!-- chart.js -->
@@ -13,6 +13,16 @@
     <body>
         <!-- <div id="onvac"></div>
              <div class="ct-chart ct-perfect-fourth"></div> -->
+        <header>
+            <h1>Ontario Vaccination</h1>
+
+            These charts use data from <a href="https://opencovid.ca">the Open Covid Data Working Group</a> to display vacicnation progress in Ontario and compare per-capita values with other Canadian provinces (using population data from <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901">Statistics Canada</a>).
+            See the link for more details on data sources.
+            I am neither an epidemiologist nor a government official so please don't use this dasboard for anything other than personal curiosity.
+            The code is on <a href="https://github.com/titaniumbones/covid-vaccines/">Github</a> and is pretty primitive!
+            The "at current rates" projection just averages the number of vaccinations over the last few days -- this number will presumably become more reliable as we move out of the holidays.
+        </header>
+        <main>
         <figure id="chartfig">
             <canvas id="chartJS"></canvas>
             <figcaption id="chartcap">At current rates, we will be done on approximately <span id="endDate"></span></figcaption>
@@ -22,7 +32,12 @@
         <figure id="provincesfig">
             <canvas id="provinceChart"></canvas>
             <figcaption id="provincesCap">Green if you're above national average, red if below</figcaption>
-        </figure> 
-
+        </figure>
+        <figure id="stackedfig">
+            <canvas id="stackedChart"></canvas>
+            <figcaption id="stackedCap"></figcaption>
+        </figure>
+        
+        </main>
     </body>
 </html>

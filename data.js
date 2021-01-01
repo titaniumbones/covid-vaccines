@@ -34,10 +34,11 @@ fetch (proxy + target)
     const ctx = document.getElementById('chartJS').getContext('2d');
     const latestTotal = avaccine.slice(-1)[0].cumulative_avaccine
     const latestDaily = avaccine.slice(-1)[0].avaccine
+    const avgDaily = getAverage(avaccine)
     const per100K = Math.round ((latestTotal / onPop) * 100000)
     //const latestDay = avaccine.slice(-1)[0].date_vaccine_administered
     console.log(per100K);
-    let daysToGo = Math.round((onPop - latestTotal )/latestDaily),
+    let daysToGo = Math.round((onPop - latestTotal )/avgDaily),
         endMom = moment().add(daysToGo, "days"),
         endDate = endMom.format("MMM DD, YYYY"),
         span = document.querySelector("#endDate") 
@@ -92,78 +93,97 @@ fetch (proxy + target)
             type: 'linear',
             position: 'right',
           }]
+        },
+        animation: {
+          onComplete: function() {
+            document.querySelector('figure#chartfig figcaption').className="show"}
         }
       }
     });
     
-    fetch(`${proxy}https://api.opencovid.ca/timeseries?stat=avaccine&date=${latestDay}`)
-      .then(response => response.json())
-      .then(json => {
-        //console.log(json);
-        let barDataseries = [],
-            barLabels = [],
-            agregatePop=popFigures.Canada,
-            agregateVaccine = 0
-        
-        json.avaccine
-          .sort((a,b) =>  getProportion(a) > getProportion(b) ? -1 : 1)
-          .forEach(province => {
-            console.log(province);
-            let totPop = popFigures[province.province]
-            console.log(totPop)
-            agregateVaccine += province.cumulative_avaccine
-            let proportional = Math.round((province.cumulative_avaccine / totPop) * 100000)
-            console.log(proportional);
-            barDataseries.push(proportional);
-            barLabels.push(province.province)
-            //return ({y: province.province, x:proportional })
-          })
-        console.log(agregateVaccine, agregatePop);
-        const goodColor = 'rgba(40,200,40, 0.2)',
-              badColor = 'rgba(200,40,40,0.2)'
-        agProp = Math.round((agregateVaccine / agregatePop) * 100000)
-        //agProp = (agregateVaccine / agregatePop) * 100000
-        let barColors = barDataseries.map(value => value > agProp ? 'rgba(40,200,40, 0.2)' : 'rgba(200,40,40,0.2)')
-        
-        barDataseries.push(agProp)
-        barLabels.push('Canada')
-        let ctx = document.getElementById('provinceChart').getContext('2d')
-        let provinceChart= new Chart(ctx, {
-          type: 'horizontalBar',
-          data: {
-            labels: barLabels,
-            datasets: [{
-              //label:"vaccines",
-              data: barDataseries,
-              xAxisID: 'prop',
-              color: 'green',
-              backgroundColor: barColors
-            }]
-          },
-          options:{
-            title: {
-              display: true,
-              text: `Comparative vaccination/100K in Canada`,
-              fontSize: 16
-            },
-            legend: {
-              display: true,
-              labels: [ {text: "Worse than Average", fillStyle: badColor },
-                        {text: "Better than Average", fillStyle: goodColor}]
-
-            },
-            scales: {
-              xAxes: [{
-                id: 'prop',
-                type: 'linear',
-                position: 'left',
-              }]}
-          }
-        })
-      })
   })
 
 
+fetch(`${proxy}https://api.opencovid.ca/summary`)
+  .then(response => response.json())
+  .then(json => {
+    //console.log(json);
+    let vaccineProportionalSeries = [],
+        recoveredProportionalSeries = [],
+        barLabels = [],
+        agregatePop=popFigures.Canada,
+        agregateVaccine = 0,
+        agregateRecovered = 0
+    
+    json.summary
+      .sort((a,b) =>  getProportion(a) > getProportion(b) ? -1 : 1)
+      .forEach(province => {
+        console.log(province);
+        if (province.province !== "Repatriated") {
+          let totPop = popFigures[province.province]
+          console.log(totPop)
+          agregateVaccine += province.cumulative_avaccine
+          agregateRecovered += province.cumulative_recovered
+          let propVaccine = Math.round((province.cumulative_avaccine / totPop) * 100000)
+          let propRecovered = Math.round((province.cumulative_recovered / totPop) * 100000)
+          console.log(propVaccine);
+          vaccineProportionalSeries.push(propVaccine);
+          recoveredProportionalSeries.push(propRecovered)
+          barLabels.push(province.province)
+        }
+        
+        //return ({y: province.province, x:propVaccine })
+      })
+    console.log(agregateVaccine, agregatePop);
+    const goodColor = 'rgba(40,200,40, 0.2)',
+          badColor = 'rgba(200,40,40,0.2)'
+    agProp = Math.round((agregateVaccine / agregatePop) * 100000)
+    agPropRec = Math.round((agregateRecovered / agregatePop) * 100000)
+    //agProp = (agregateVaccine / agregatePop) * 100000
+    let barColors = vaccineProportionalSeries.map(value => value > agProp ? 'rgba(40,200,40, 0.2)' : 'rgba(200,40,40,0.2)')
+    
+    vaccineProportionalSeries.push(agProp)
+    recoveredProportionalSeries.push(agPropRec)
+    barLabels.push('Canada')
+    let ctx = document.getElementById('provinceChart').getContext('2d')
+    let provinceChart= new Chart(ctx, {
+      type: 'horizontalBar',
+      data: {
+        labels: barLabels,
+        datasets: [{
+          //label:"vaccines",
+          data: vaccineProportionalSeries,
+          xAxisID: 'prop',
+          color: 'green',
+          backgroundColor: barColors
+        }]
+      },
+      options:{
+        title: {
+          display: true,
+          text: `Comparative vaccination/100K in Canada`,
+          fontSize: 16
+        },
+        legend: {
+          display: true,
+          labels: [ {text: "Worse than Average", fillStyle: badColor },
+                    {text: "Better than Average", fillStyle: goodColor}]
+
+        },
+        scales: {
+          xAxes: [{
+            id: 'prop',
+            type: 'linear',
+            position: 'left',
+          }]},
+        animation: {
+          onComplete: function() {
+            document.querySelector('figure#provincesfig figcaption').className="show"}
+        }
+      }
+    })
+
+  })
 function getProportion(item) {
   return (item.cumulative_avaccine/popFigures[item.province])
 }
@@ -171,4 +191,11 @@ function sortProvinces (provinces) {
   return 
 }
 
+function getAverage (list, days=3) {
+  let recent = list.slice(0-days),
+      total = 0
+  recent.forEach (item => total += item.avaccine)
+  return total/days
+  
+}
 

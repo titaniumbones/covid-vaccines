@@ -1,4 +1,4 @@
-body {
+main {
     display: grid;
 }
 
@@ -6,11 +6,18 @@ span.good {
     color: rgba(20,200,20,1)
 }
 
+figcaption {
+    visibility: hidden;
+}
+
+figcaption.show {
+    visibility: visible;
+}
 span.bad {
     color: rgba(200,20,20,1)
 }
-@media (min-width: 800px) {
-    body {
+@media screen and (min-width: 1000px) {
+    main {
         grid-template-columns: 1fr 1fr;
     }
 }
