@@ -1,4 +1,4 @@
-const proxy = 'https://cors-anywhere.herokuapp.com/',
+const proxy = 'https://hackinghistory.ca:9090/', //'https://cors-anywhere.herokuapp.com/',
       target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine'
 const onPop = 14570000;
 const popFigures= {
