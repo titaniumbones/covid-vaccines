@@ -182,13 +182,55 @@ fetch(`${proxy}https://api.opencovid.ca/summary`)
         }
       }
     })
+    let ctx3 = document.getElementById('stackedChart').getContext('2d')
+    let stackedChart = new Chart (ctx3, {
+      type: 'horizontalBar',
+      data: {
+        labels: barLabels,
+        datasets: [{
+          data: vaccineProportionalSeries,
+          xAxisID: 'prop',
+          color: 'green',
+          backgroundColor: goodColor,
+          label: "vaccine"
+        }, {
+          data: recoveredProportionalSeries,
+          xAxisID: 'prop',
+          color: 'green',
+          backgroundColor: 'rgba(60,60,60,0.2)',
+          label: "recovered"
+        }]
+      },
+      options:{
+        title: {
+          display: true,
+          text: `Very Rough "Immune"/100K in Canada`,
+          fontSize: 16
+        },
+        legend: {
+          display: true,
+          // labels: [ {text: "Worse than Average", fillStyle: badColor },
+          //           {text: "Better than Average", fillStyle: goodColor}]
 
+        },
+        scales: {
+          xAxes: [{
+            id: 'prop',
+            type: 'linear',
+            position: 'left',
+            stacked: true
+          }],
+          yAxes: [{stacked:true}]
+        },
+        animation: {
+          onComplete: function() {
+            document.querySelector('figure#provincesfig figcaption').className="show"}
+        }
+      }
+    })
   })
 function getProportion(item) {
   return (item.cumulative_avaccine/popFigures[item.province])
-}
-function sortProvinces (provinces) {
-  return 
 }
 
 function getAverage (list, days=3) {
