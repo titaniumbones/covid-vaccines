@@ -1,0 +1,29 @@
+name: Refresh Feed
+on: 
+  schedule:
+    - cron: 0 * * * 0-6
+jobs:
+  refresh-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+  
+      - name: Fetch Ontario Data
+        uses: JamesIves/fetch-api-data-action@releases/v1
+        with:
+          # TOKEN_ENDPOINT: https://www.strava.com/api/v3/oauth/token
+          # TOKEN_CONFIGURATION: '{ "method": "POST", "body": {"client_id": "${{ secrets.client_id }}", "client_secret": "${{ secrets.client_secret }}"} }'
+          ENDPOINT: https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine
+          # CONFIGURATION: '{ "method": "GET" }'
+          SAVE_NAME: ontario-avaccine
+
+      - name: Build and Deploy 
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: master # Pushes the updates to the master branch.
+          FOLDER: fetch-api-data-action # The location of the data.json file saved by the Fetch API Data action.
+          TARGET_FOLDER: src/data # Saves the data into the 'data' directory on the master branch.
