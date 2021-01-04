@@ -105,7 +105,8 @@ fetch ("./data/ontario-avaccine.json")
   })
 
 
-fetch(`${proxy}https://api.opencovid.ca/summary`)
+//fetch(`${proxy}https://api.opencovid.ca/summary`)
+fetch(`./data/canada-summary.json`)
   .then(response => response.json())
   .then(json => {
     //console.log(json);
