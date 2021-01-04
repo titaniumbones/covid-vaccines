@@ -243,8 +243,10 @@ fetch(`./data/canada-summary.json`)
       }
     })
   })
-function getProportion(item) {
-  return (item.cumulative_avaccine/popFigures[item.province])
+function getProportion(item, combined=false) {
+  return combined
+    ? ((item.cumulative_avaccine + item.cumulative_recovered)/popFigures[item.province])
+    : (item.cumulative_avaccine/popFigures[item.province])
 }
 
 
