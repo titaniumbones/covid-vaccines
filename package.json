@@ -1,0 +1,16 @@
+{
+  "name": "covid-vaccine-track",
+  "version": "0.0.1",
+  "description": "",
+  "main": ".#data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "node node_modules/live-server/live-server"
+  },
+  "author": "Matt Price <matt.price@utoronto.ca>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "live-server": "^1.2.1",
+    "moment": "^2.29.1"
+  }
+}
