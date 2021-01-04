@@ -19,7 +19,8 @@ const popFigures= {
 }
 let result;
 
-fetch (proxy + target)
+//fetch (proxy + target)
+fetch ("./data/ontario-avaccine.json")
   .then(response => response.json())
   .then(json => {
     result=json
