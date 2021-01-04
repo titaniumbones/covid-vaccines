@@ -247,7 +247,8 @@ function getProportion(item) {
   return (item.cumulative_avaccine/popFigures[item.province])
 }
 
-function getAverage (list, days=3) {
+
+function getAverage (list, days=7) {
   let recent = list.slice(0-days),
       total = 0
   recent.forEach (item => total += item.avaccine)
