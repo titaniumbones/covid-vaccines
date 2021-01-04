@@ -182,29 +182,35 @@ fetch(`${proxy}https://api.opencovid.ca/summary`)
         }
       }
     })
+    let vaccinePercent = vaccineProportionalSeries.map(i => i/1000)
+    let recoveredPercent = recoveredProportionalSeries.map(i=> i/1000)
+    console.log(recoveredProportionalSeries);
+        recoveredPercent
     let ctx3 = document.getElementById('stackedChart').getContext('2d')
     let stackedChart = new Chart (ctx3, {
       type: 'horizontalBar',
       data: {
         labels: barLabels,
         datasets: [{
-          data: vaccineProportionalSeries,
+          data: vaccinePercent,
           xAxisID: 'prop',
           color: 'green',
           backgroundColor: goodColor,
-          label: "vaccine"
+          label: "vaccinated"
         }, {
-          data: recoveredProportionalSeries,
+          data: recoveredPercent,
           xAxisID: 'prop',
-          color: 'green',
           backgroundColor: 'rgba(60,60,60,0.2)',
           label: "recovered"
         }]
       },
       options:{
+        aspectRatio: 4,
+        responsive: true,
+        //maintainAspectRatio: false,
         title: {
           display: true,
-          text: `Very Rough "Immune"/100K in Canada`,
+          text: `Very Rough "Immune" Percentages in Canada`,
           fontSize: 16
         },
         legend: {
@@ -218,7 +224,13 @@ fetch(`${proxy}https://api.opencovid.ca/summary`)
             id: 'prop',
             type: 'linear',
             position: 'left',
-            stacked: true
+            stacked: true,
+            ticks: {
+              // max: 10,
+              callback: function(value, index, values) {
+                return value + '%';
+              }
+            },
           }],
           yAxes: [{stacked:true}]
         },

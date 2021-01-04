@@ -1,5 +1,20 @@
 main {
     display: grid;
+    grid-template-areas: "daily" "provinces" "immune";
+    grid-template-rows: repeat(1fr, auto);
+                         
+}
+
+#chartfig {
+    grid-area: daily;
+}
+
+#provincesfig {
+    grid-area: provinces;
+}
+
+#stackedfig {
+    grid-area: immune;
 }
 
 span.good {
@@ -18,6 +33,9 @@ span.bad {
 }
 @media screen and (min-width: 1000px) {
     main {
+        /* grid-template-columns: 1fr 1fr; */
+        grid-template-areas: "daily provinces" "immune immune";
         grid-template-columns: 1fr 1fr;
+                             
     }
 }
