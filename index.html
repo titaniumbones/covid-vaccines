@@ -16,12 +16,19 @@
         <header>
             <h1>Ontario Vaccination</h1>
 
-            These charts use data from <a href="https://opencovid.ca">the Open Covid Data Working Group</a> to display vacicnation progress in Ontario and compare per-capita values with other Canadian provinces (using population data from <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901">Statistics Canada</a>).
-            See the link for more details on data sources.
-            I am neither an epidemiologist nor a government official so please don't use this dasboard for anything other than personal curiosity.
-            The code is on <a href="https://github.com/titaniumbones/covid-vaccines/">Github</a> and is pretty primitive!
-            The "at current rates" projection just averages the number of vaccinations over the last week -- this number will presumably become more reliable as we move out of the holidays.
-            Data is usually updated in the evening -- we check hourly from 7 to midnight (sorry, can't do real-time checks any more -- we unfortunately need to use a proxy and the service I was using is too unreliable.)
+            <p>
+                These charts use data from <a href="https://opencovid.ca">the Open Covid Data Working Group</a> to display vacicnation progress in Ontario and compare per-capita values with other Canadian provinces (using population data from <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901">Statistics Canada</a>).
+                See the link for more details on data sources.
+                I am neither an epidemiologist nor a government official so please don't use this dasboard for anything other than personal curiosity.
+                The code is on <a href="https://github.com/titaniumbones/covid-vaccines/">Github</a> and is pretty primitive!
+                The "at current rates" projection just averages the number of vaccinations over the last week -- this number will presumably become more reliable as we move out of the holidays.
+                Data is usually updated in the evening -- we check hourly from 7 to midnight (sorry, can't do real-time checks any more -- we unfortunately need to use a proxy and the service I was using is too unreliable.)
+            </p>
+            <p>
+                "Immune Percentages" chart is even less reliable than other graphs on this page -- we still don't know all that much about immune duration in COVID, how its related to disease severity, etc.;
+                may people have presumably been infected but are not included in the case count;
+                and presumably there will be some overlap between immunized and recovered patients.
+            </p> 
         </header>
         <main>
         <figure id="chartfig">
