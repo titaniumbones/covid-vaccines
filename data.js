@@ -1,5 +1,8 @@
-const proxy = 'https://cors-anywhere.herokuapp.com/', //'https://hackinghistory.ca:9090/', //'https://cors-anywhere.herokuapp.com/',
-      target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine'
+let vaccine_target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine',
+    summary_target = 'https://api.opencovid.ca/summary'
+
+// vaccine_target = "./data/ontario-avaccine.json"
+// summary_target = "./data/canada-summary.json"
 const onPop = 14570000;
 const popFigures= {
   Canada: 38008005,
@@ -20,7 +23,7 @@ const popFigures= {
 let result;
 
 //fetch (proxy + target)
-fetch ("./data/ontario-avaccine.json")
+fetch (vaccine_target)
   .then(response => response.json())
   .then(json => {
     result=json
@@ -106,7 +109,7 @@ fetch ("./data/ontario-avaccine.json")
 
 
 //fetch(`${proxy}https://api.opencovid.ca/summary`)
-fetch(`./data/canada-summary.json`)
+fetch(summary_target)
   .then(response => response.json())
   .then(json => {
     //console.log(json);
