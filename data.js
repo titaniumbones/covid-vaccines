@@ -3,7 +3,7 @@ let vaccine_target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine',
 
 // vaccine_target = "./data/ontario-avaccine.json"
 // summary_target = "./data/canada-summary.json"
-const onPop = 14570000;
+//  const onPop = 14570000;
 const popFigures= {
   Canada: 38008005,
   NL: 521000,
@@ -39,10 +39,10 @@ fetch (vaccine_target)
     const latestTotal = avaccine.slice(-1)[0].cumulative_avaccine
     const latestDaily = avaccine.slice(-1)[0].avaccine
     const avgDaily = getAverage(avaccine)
-    const per100K = Math.round ((latestTotal / onPop) * 100000)
+    const per100K = Math.round ((latestTotal / popFigures.Ontario) * 100000)
     //const latestDay = avaccine.slice(-1)[0].date_vaccine_administered
     console.log(per100K);
-    let daysToGo = Math.round((onPop - latestTotal )/avgDaily),
+    let daysToGo = Math.round((popFigures.Ontario - latestTotal )/avgDaily),
         endMom = moment().add(daysToGo, "days"),
         endDate = endMom.format("MMM DD, YYYY"),
         span = document.querySelector("#endDate") 
@@ -101,6 +101,19 @@ fetch (vaccine_target)
         animation: {
           onComplete: function() {
             document.querySelector('figure#chartfig figcaption').className="show"}
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+              if (label) {
+                label += ': ';
+              }
+              label += `${tooltipItem.yLabel}, ${Math.round(100000 * tooltipItem.yLabel/popFigures.Ontario)}/100k`;
+              return label;
+            }
+          }
         }
       }
     });
@@ -115,29 +128,42 @@ fetch(summary_target)
     //console.log(json);
     let vaccineProportionalSeries = [],
         recoveredProportionalSeries = [],
-        barLabels = [],
+        
+        provinceVaccineLabels = [],
+        immuneLabels = [],
         agregatePop=popFigures.Canada,
         agregateVaccine = 0,
-        agregateRecovered = 0
+        agregateRecovered = 0,
+        onAdmin,
+        onDist
     
     json.summary
       .sort((a,b) =>  getProportion(a) > getProportion(b) ? -1 : 1)
-      .forEach(province => {
+      .map(province => {
         console.log(province);
         if (province.province !== "Repatriated") {
           let totPop = popFigures[province.province]
           console.log(totPop)
           agregateVaccine += province.cumulative_avaccine
           agregateRecovered += province.cumulative_recovered
+          provinceVaccineLabels.push(province.province)
           let propVaccine = Math.round((province.cumulative_avaccine / totPop) * 100000)
+          vaccineProportionalSeries.push(propVaccine);
+
           let propRecovered = Math.round((province.cumulative_recovered / totPop) * 100000)
           console.log(propVaccine);
-          vaccineProportionalSeries.push(propVaccine);
           recoveredProportionalSeries.push(propRecovered)
-          barLabels.push(province.province)
+          if (province.province == "Ontario") {
+            onAdmin = province.cumulative_avaccine,
+            onDist = province.cumulative_dvaccine
+          }
         }
-        
+        return province
         //return ({y: province.province, x:propVaccine })
+      })
+      .sort((a,b) =>  getProportion(a) > getProportion(b) ? -1 : 1)
+      .forEach(province => {
+        
       })
     console.log(agregateVaccine, agregatePop);
     const goodColor = 'rgba(40,200,40, 0.2)',
@@ -149,12 +175,12 @@ fetch(summary_target)
     
     vaccineProportionalSeries.push(agProp)
     recoveredProportionalSeries.push(agPropRec)
-    barLabels.push('Canada')
+    provinceVaccineLabels.push('Canada')
     let ctx = document.getElementById('provinceChart').getContext('2d')
     let provinceChart= new Chart(ctx, {
       type: 'horizontalBar',
       data: {
-        labels: barLabels,
+        labels: provinceVaccineLabels,
         datasets: [{
           //label:"vaccines",
           data: vaccineProportionalSeries,
@@ -184,18 +210,31 @@ fetch(summary_target)
         animation: {
           onComplete: function() {
             document.querySelector('figure#provincesfig figcaption').className="show"}
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+              if (label) {
+                label += ': ';
+              }
+              label += Math.round(tooltipItem.xLabel) + "/100k";
+              return label;
+            }
+          }
         }
       }
     })
     let vaccinePercent = vaccineProportionalSeries.map(i => i/1000)
     let recoveredPercent = recoveredProportionalSeries.map(i=> i/1000)
     console.log(recoveredProportionalSeries);
-        recoveredPercent
+
     let ctx3 = document.getElementById('stackedChart').getContext('2d')
     let stackedChart = new Chart (ctx3, {
       type: 'horizontalBar',
       data: {
-        labels: barLabels,
+        labels: provinceVaccineLabels,
         datasets: [{
           data: vaccinePercent,
           xAxisID: 'prop',
