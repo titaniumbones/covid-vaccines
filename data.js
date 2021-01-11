@@ -110,7 +110,7 @@ fetch (vaccine_target)
               if (label) {
                 label += ': ';
               }
-              label += `${tooltipItem.yLabel}, ${Math.round(100000 * tooltipItem.yLabel/popFigures.Ontario)}/100k`;
+              label += `${tooltipItem.yLabel.toLocaleString(undefined,{minimumFractionDigits:0})} = ${Math.round(100000 * tooltipItem.yLabel/popFigures.Ontario)}/100k`;
               return label;
             }
           }
@@ -320,7 +320,7 @@ fetch(summary_target)
                 }
                 let i = tooltipItem.index,
                     d = data.datasets[0].data[i]
-                label += `${d},  ${Number((d / onDist) * 100).toFixed(2)}%`;
+                label += `${d.toLocaleString(undefined,{minimumFractionDigits:0})} = ${Number((d / onDist) * 100).toFixed(2)}%`;
                 return label
               } catch (error) {
                 console.log(error);
@@ -330,10 +330,13 @@ fetch(summary_target)
         },
         title: {
           display: true,
-          text: [`Percentage Administered in Ontario`, `(Total Distributed to ON by feds: ${onDist})`],
+          text: [`Percentage Administered in Ontario`, `(Total Distributed to ON by feds: ${onDist.toLocaleString(undefined,{ minimumFractionDigits: 0 })})`],
           fontSize: 16
         },
-
+        animation: {
+          onComplete: function() {
+            document.querySelector('figure#piefig figcaption').className="show"}
+        }
       }
     })
   })
