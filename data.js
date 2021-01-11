@@ -297,7 +297,48 @@ fetch(summary_target)
         }
       }
     })
+  
+    let ctx4 = document.getElementById('pieChart').getContext('2d')
+    let distPie = new Chart (ctx4, {
+      type: 'pie',
+      data: {
+        labels: ["administered", "unadministered"],
+        datasets: [{ 
+          data: [onAdmin, onDist - onAdmin],
+          backgroundColor: [goodColor, "grey"]
+        }]
+      },
+      options: {
+        tooltips: {
+          callbacks: {
+            label: function (tooltipItem, data) {
+              try {
+                let label = ' ' + data.labels[tooltipItem.index] || '';
+
+                if (label) {
+                  label += ': ';
+                }
+                let i = tooltipItem.index,
+                    d = data.datasets[0].data[i]
+                label += `${d},  ${Number((d / onDist) * 100).toFixed(2)}%`;
+                return label
+              } catch (error) {
+                console.log(error);
+              }
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: [`Percentage Administered in Ontario`, `(Total Distributed to ON by feds: ${onDist})`],
+          fontSize: 16
+        },
+
+      }
+    })
   })
+
+
 function getProportion(item, combined=false) {
   return combined
     ? ((item.cumulative_avaccine + item.cumulative_recovered)/popFigures[item.province])
