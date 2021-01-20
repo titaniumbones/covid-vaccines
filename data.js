@@ -83,6 +83,7 @@ fetch (vaccine_target)
             distribution: 'linear',
             time: {
               unit: 'day',
+              tooltipFormat: "MMM DD, YYYY",
               // displayFormats: {
               //   quarter: 'MMM DD'
               // }
