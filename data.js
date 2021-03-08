@@ -1,4 +1,4 @@
-let vaccine_target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine',
+const vaccine_target = 'https://api.opencovid.ca/timeseries?loc=ON&stat=avaccine',
     summary_target = 'https://api.opencovid.ca/summary'
 
 // vaccine_target = "./data/ontario-avaccine.json"
@@ -22,7 +22,6 @@ const popFigures= {
 }
 let result;
 
-//fetch (proxy + target)
 fetch (vaccine_target)
   .then(response => response.json())
   .then(json => {
@@ -30,12 +29,11 @@ fetch (vaccine_target)
     const latestDay = result.avaccine.slice(-1)[0].date_vaccine_administered
     let avaccine = result.avaccine.map(item => {
       let d = item.date_vaccine_administered;
-      item.date_vaccine_administered = new Date (d.slice(6), Number(d.slice(3,5)) -1, d.slice(0,2));
+      item.date_vaccine_administered = moment(new Date (d.slice(6), Number(d.slice(3,5)) -1, d.slice(0,2)), "MMM DD, YYYY");
       return item})
     let cjsData = avaccine.map(item => { return {t: item.date_vaccine_administered, y: item.avaccine, total: item.cumulative_avaccine}})
     let cjsData2 = avaccine.map(item => { return {t: item.date_vaccine_administered, y: item.cumulative_avaccine}})
     // console.log(cjsData);
-    const ctx = document.getElementById('chartJS').getContext('2d');
     const latestTotal = avaccine.slice(-1)[0].cumulative_avaccine
     const latestDaily = avaccine.slice(-1)[0].avaccine
     const avgDaily = getAverage(avaccine)
@@ -48,7 +46,8 @@ fetch (vaccine_target)
         span = document.querySelector("#endDate") 
     span.textContent = endDate
     endMom < moment('2020-09-01') ? span.className = "good" : span.className = "bad"
-    
+    const ctx = document.getElementById('chartJS').getContext('2d');
+
     myBarChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -70,12 +69,13 @@ fetch (vaccine_target)
       options: {
         responsive: true,
         legend: {
-          position: 'top',
+          position: 'bottom',
         },
         title: {
           display: true,
           text: `Ontario Vaccine Progress - ${per100K} per 100K`,
-          fontSize: 16
+          fontSize: 16,
+          position: 'bottom'
         },
         scales: {
           xAxes: [{
@@ -106,14 +106,21 @@ fetch (vaccine_target)
         tooltips: {
           callbacks: {
             label: function(tooltipItem, data) {
-              var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
+              let label = data.datasets[tooltipItem.datasetIndex].label || '';
               if (label) {
                 label += ': ';
               }
-              label += `${tooltipItem.yLabel.toLocaleString(undefined,{minimumFractionDigits:0})} = ${Math.round(100000 * tooltipItem.yLabel/popFigures.Ontario)}/100k`;
+              label += `${tooltipItem.value.toLocaleString(undefined,{minimumFractionDigits:0})} = ${Math.round(100000 * tooltipItem.value/popFigures.Ontario)}/100k`;
               return label;
-            }
+            },
+            // title: function(tooltipItem, data) {
+            //   let title = data.datasets[tooltipItem.datasetIndex].title || '';
+            //   console.log("title:", title);
+            //   if (title) {
+            //     title = moment(title, "MMM DD, YYYY");
+            //   }
+            //   return title
+            // }
           }
         }
       }
@@ -129,12 +136,13 @@ fetch(summary_target)
     //console.log(json);
     let vaccineProportionalSeries = [],
         recoveredProportionalSeries = [],
-        
+        completeVaccinePropSeries = [],
         provinceVaccineLabels = [],
         immuneLabels = [],
         agregatePop=popFigures.Canada,
         agregateVaccine = 0,
         agregateRecovered = 0,
+        completeVaccine = 0,
         onAdmin,
         onDist
     
@@ -146,11 +154,13 @@ fetch(summary_target)
           let totPop = popFigures[province.province]
           console.log(totPop)
           agregateVaccine += province.cumulative_avaccine
+          completeVaccine += province.cumulative_cvaccine
           agregateRecovered += province.cumulative_recovered
           provinceVaccineLabels.push(province.province)
-          let propVaccine = Math.round((province.cumulative_avaccine / totPop) * 100000)
+          let propVaccine = Math.round((province.cumulative_avaccine / totPop) * 100000),
+              propCompleteVaccine = Math.round((province.cumulative_cvaccine / totPop) * 100000)
           vaccineProportionalSeries.push(propVaccine);
-
+          completeVaccinePropSeries.push(propCompleteVaccine)
           let propRecovered = Math.round((province.cumulative_recovered / totPop) * 100000)
           console.log(propVaccine);
           recoveredProportionalSeries.push(propRecovered)
@@ -168,13 +178,16 @@ fetch(summary_target)
       })
     console.log(agregateVaccine, agregatePop);
     const goodColor = 'rgba(40,200,40, 0.2)',
+          greatColor = 'rgba(20,220,20, 0.5)',
           badColor = 'rgba(200,40,40,0.2)'
     agProp = Math.round((agregateVaccine / agregatePop) * 100000)
     agPropRec = Math.round((agregateRecovered / agregatePop) * 100000)
+    agCompProp = Math.round((completeVaccine / agregatePop) * 100000)
     //agProp = (agregateVaccine / agregatePop) * 100000
     let barColors = vaccineProportionalSeries.map(value => value > agProp ? 'rgba(40,200,40, 0.2)' : 'rgba(200,40,40,0.2)')
     
     vaccineProportionalSeries.push(agProp)
+    completeVaccinePropSeries.push(agCompProp)
     recoveredProportionalSeries.push(agPropRec)
     provinceVaccineLabels.push('Canada')
     let ctx = document.getElementById('provinceChart').getContext('2d')
@@ -227,21 +240,31 @@ fetch(summary_target)
         }
       }
     })
-    let vaccinePercent = vaccineProportionalSeries.map(i => i/1000)
+    let completePercent = completeVaccinePropSeries.map(i => i/1000)
+    console.log("complete", completePercent);
+    let vaccinePercent = vaccineProportionalSeries.map((num, i) => (num/1000)-(completePercent[i]*2))
+    //let vaccinePercent = vaccineProportionalSeries.map(i => i/1000)
     let recoveredPercent = recoveredProportionalSeries.map(i=> i/1000)
     console.log(recoveredProportionalSeries);
 
+    
     let ctx3 = document.getElementById('stackedChart').getContext('2d')
     let stackedChart = new Chart (ctx3, {
       type: 'horizontalBar',
       data: {
         labels: provinceVaccineLabels,
-        datasets: [{
+        datasets: [
+          {
+            data: completePercent,
+            xAxisID: "prop",
+            backgroundColor: greatColor,
+            label: 'completed'},
+          {
           data: vaccinePercent,
           xAxisID: 'prop',
           color: 'green',
           backgroundColor: goodColor,
-          label: "vaccinated"
+          label: "partially vaccinated"
         }, {
           data: recoveredPercent,
           xAxisID: 'prop',
@@ -255,7 +278,7 @@ fetch(summary_target)
         //maintainAspectRatio: false,
         title: {
           display: true,
-          text: `Very Rough "Immune" Percentages in Canada`,
+          text: [`Very Rough "Immune" Percentages in Canada`,`(QC does not report 'completed' numbers)`],
           fontSize: 16
         },
         legend: {
